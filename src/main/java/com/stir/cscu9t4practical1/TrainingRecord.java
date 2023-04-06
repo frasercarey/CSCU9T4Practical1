@@ -27,9 +27,47 @@ public class TrainingRecord {
           Entry current = iter.next();
           if (current.getDay()==d && current.getMonth()==m && current.getYear()==y) 
              result = current.getEntry();
-            }
+        }
        return result;
    } // lookupEntry
+   
+   // look up all the entries of a given day, month and year
+   public String lookupEntries (int d, int m, int y) {
+       ListIterator<Entry> iter = tr.listIterator();
+       String result = "";
+       while (iter.hasNext()) {
+           Entry current = iter.next();
+           if (current.getDay() == d && current.getMonth() == m && current.getYear() == y)
+               result += current.getEntry();
+       }
+       if (result.isEmpty())
+           result = "No entries found";
+       return result;
+   } // lookupEntries
+   
+   // check to see if an entry already exists for given name, day, month and year
+   public boolean checkEntryExists(String n, int d, int m, int y) {
+       ListIterator<Entry> iter = tr.listIterator();
+       while (iter.hasNext()) {
+           Entry current = iter.next();
+           if (current.getName().equalsIgnoreCase(n) && current.getDay() == d && current.getMonth() == m && current.getYear() == y)
+               return true;
+       }
+       return false;
+   }
+   
+   // remove entry of given name, day, month and year
+   public String removeEntry(String n, int d, int m, int y) {
+       ListIterator<Entry> iter = tr.listIterator();
+       while (iter.hasNext()) {
+           Entry current = iter.next();
+           if (current.getName().equalsIgnoreCase(n) && current.getDay() == d && current.getMonth() == m && current.getYear() == y) {
+               iter.remove();
+               return "Entry removed";
+           }
+       }
+       return "No entry found";
+   }
    
    // Count the number of entries
    public int getNumberOfEntries(){
