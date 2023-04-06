@@ -39,6 +39,7 @@ public class TrainingRecordGUI extends JFrame implements ActionListener {
     private JButton addR = new JButton("Add");
     private JButton lookUpByDate = new JButton("Look Up");
     private JButton findAllByDate = new JButton("FindAllByDate");
+    private JButton removeR = new JButton("Remove");
     
     private enum sessionTypes {
         CYCLE, RUN, SPRINT, SWIM
@@ -106,6 +107,8 @@ public class TrainingRecordGUI extends JFrame implements ActionListener {
         lookUpByDate.addActionListener(this);
         add(findAllByDate);
         findAllByDate.addActionListener(this);
+        add(removeR);
+        removeR.addActionListener(this);
         add(outputArea);
         outputArea.setEditable(false);
         setSize(800, 250);
@@ -164,6 +167,9 @@ public class TrainingRecordGUI extends JFrame implements ActionListener {
                     break;
             }
         }
+        if (event.getSource() == removeR) {
+            message =  removeEntry();
+        }
         outputArea.setText(message);
         blankDisplay();
     } // actionPerformed
@@ -179,6 +185,11 @@ public class TrainingRecordGUI extends JFrame implements ActionListener {
         int h = Integer.parseInt(hours.getText());
         int mm = Integer.parseInt(mins.getText());
         int s = Integer.parseInt(secs.getText());
+        
+        // check if record already exists
+        if (myAthletes.checkEntryExists(n, d, m, y))
+            return "Error: An entry already exists with that name and date!";
+        
         String session = sessionType.getSelectedItem().toString();
         Entry entry;
         switch(session) {
@@ -223,6 +234,14 @@ public class TrainingRecordGUI extends JFrame implements ActionListener {
         int y = Integer.parseInt(year.getText());
         outputArea.setText("looking up records...");
         return myAthletes.lookupEntries(d, m, y);
+    }
+    
+    public String removeEntry() {
+        String n = name.getText();
+        int m = Integer.parseInt(month.getText());
+        int d = Integer.parseInt(day.getText());
+        int y = Integer.parseInt(year.getText());
+        return myAthletes.removeEntry(n, d, m, y);
     }
 
     public void blankDisplay() {
