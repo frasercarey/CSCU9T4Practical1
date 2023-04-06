@@ -16,8 +16,10 @@ public class Swim extends Entry {
     public String getWhere() {
         if (where.equalsIgnoreCase("pool"))
             return "in a pool";
-        else
+        else if (where.equalsIgnoreCase("outdoors"))
             return "outdoors";
+        else
+            return "unknown";
     }
     
     @Override

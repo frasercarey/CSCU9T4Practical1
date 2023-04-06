@@ -17,6 +17,11 @@ public class TrainingRecordGUI extends JFrame implements ActionListener {
     private JTextField mins = new JTextField(2);
     private JTextField secs = new JTextField(2);
     private JTextField dist = new JTextField(4);
+    private JTextField where = new JTextField(10);
+    private JTextField terrain = new JTextField(10);
+    private JTextField tempo = new JTextField(10);
+    private JTextField sprints = new JTextField(2);
+    private JTextField recovery = new JTextField(2);
     private JLabel labn = new JLabel(" Name:");
     private JLabel labd = new JLabel(" Day:");
     private JLabel labm = new JLabel(" Month:");
@@ -25,9 +30,21 @@ public class TrainingRecordGUI extends JFrame implements ActionListener {
     private JLabel labmm = new JLabel(" Mins:");
     private JLabel labs = new JLabel(" Secs:");
     private JLabel labdist = new JLabel(" Distance (km):");
+    private JLabel labst = new JLabel(" Session Type:");
+    private JLabel labw = new JLabel(" Where:");
+    private JLabel labt = new JLabel(" Terrain:");
+    private JLabel labte = new JLabel(" Tempo:");
+    private JLabel labsp = new JLabel(" Sprints:");
+    private JLabel labr = new JLabel(" Recovery:");
     private JButton addR = new JButton("Add");
     private JButton lookUpByDate = new JButton("Look Up");
     private JButton findAllByDate = new JButton("FindAllByDate");
+    
+    private enum sessionTypes {
+        CYCLE, RUN, SPRINT, SWIM
+    }
+    
+    private JComboBox sessionType = new JComboBox(sessionTypes.values());
 
     private TrainingRecord myAthletes = new TrainingRecord();
 
@@ -44,6 +61,9 @@ public class TrainingRecordGUI extends JFrame implements ActionListener {
         add(labn);
         add(name);
         name.setEditable(true);
+        add(labst);
+        add(sessionType);
+        sessionType.addActionListener(this);
         add(labd);
         add(day);
         day.setEditable(true);
@@ -65,6 +85,21 @@ public class TrainingRecordGUI extends JFrame implements ActionListener {
         add(labdist);
         add(dist);
         dist.setEditable(true);
+        add(labw);
+        add(where);
+        where.setEditable(false);
+        add(labt);
+        add(terrain);
+        terrain.setEditable(true);
+        add(labte);
+        add(tempo);
+        tempo.setEditable(true);
+        add(labsp);
+        add(sprints);
+        sprints.setEditable(false);
+        add(labr);
+        add(recovery);
+        recovery.setEditable(false);
         add(addR);
         addR.addActionListener(this);
         add(lookUpByDate);
@@ -73,12 +108,13 @@ public class TrainingRecordGUI extends JFrame implements ActionListener {
         findAllByDate.addActionListener(this);
         add(outputArea);
         outputArea.setEditable(false);
-        setSize(720, 200);
+        setSize(800, 250);
         setVisible(true);
         blankDisplay();
 
         // To save typing in new entries while testing, uncomment
         // the following lines (or add your own test cases)
+        
         
     } // constructor
 
@@ -86,13 +122,47 @@ public class TrainingRecordGUI extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent event) {
         String message = "";
         if (event.getSource() == addR) {
-            message = addEntry("generic");
+            String session = sessionType.getSelectedItem().toString();
+            message = addEntry(session);
         }
         if (event.getSource() == lookUpByDate) {
             message = lookupEntry();
         }
         if (event.getSource() == findAllByDate) {
             message = lookupEntries();
+        }
+        if (event.getSource() == sessionType) {
+            String session = sessionType.getSelectedItem().toString();
+            switch (session) {
+                case "CYCLE":
+                    where.setEditable(false);
+                    terrain.setEditable(true);
+                    tempo.setEditable(true);
+                    sprints.setEditable(false);
+                    recovery.setEditable(false);
+                    break;
+                case "RUN":
+                    where.setEditable(false);
+                    terrain.setEditable(false);
+                    tempo.setEditable(false);
+                    sprints.setEditable(false);
+                    recovery.setEditable(false);
+                    break;
+                case "SPRINT":
+                    where.setEditable(false);
+                    terrain.setEditable(false);
+                    tempo.setEditable(false);
+                    sprints.setEditable(true);
+                    recovery.setEditable(true);
+                    break;
+                case "SWIM":
+                    where.setEditable(true);
+                    terrain.setEditable(false);
+                    tempo.setEditable(false);
+                    sprints.setEditable(false);
+                    recovery.setEditable(false);
+                    break;
+            }
         }
         outputArea.setText(message);
         blankDisplay();
@@ -109,8 +179,32 @@ public class TrainingRecordGUI extends JFrame implements ActionListener {
         int h = Integer.parseInt(hours.getText());
         int mm = Integer.parseInt(mins.getText());
         int s = Integer.parseInt(secs.getText());
-        Entry e = new Entry(n, d, m, y, h, mm, s, km);
-        myAthletes.addEntry(e);
+        String session = sessionType.getSelectedItem().toString();
+        Entry entry;
+        switch(session) {
+            case "CYCLE":
+                String t = terrain.getText();
+                String te = tempo.getText();
+                entry = new Cycle(n, d, m, y, h, mm, s, km, t, te);
+                break;
+            case "RUN":
+                entry = new Run(n, d, m, y, h, mm, s, km);
+                break;
+            case "SPRINT":
+                int sp = Integer.parseInt(sprints.getText());
+                int r = Integer.parseInt(recovery.getText());
+                entry = new Sprint(n, d, m, y, h, mm, s, km, sp, r);
+                break;
+            case "SWIM":
+                String w = where.getText();
+                entry = new Swim(n, d, m, y, h, mm, s, km, w);
+                break;
+            default:
+                entry = new Entry(n, d, m, y, h, mm, s, km);
+        }
+        
+        //Entry e = new Entry(n, d, m, y, h, mm, s, km);
+        myAthletes.addEntry(entry);
         return message;
     }
     
@@ -140,6 +234,11 @@ public class TrainingRecordGUI extends JFrame implements ActionListener {
         mins.setText("");
         secs.setText("");
         dist.setText("");
+        where.setText("");
+        terrain.setText("");
+        tempo.setText("");
+        sprints.setText("");
+        recovery.setText("");
 
     }// blankDisplay
     // Fills the input fields on the display for testing purposes only
